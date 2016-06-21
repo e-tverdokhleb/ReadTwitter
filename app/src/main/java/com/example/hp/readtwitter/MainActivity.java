@@ -8,9 +8,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import com.google.gson.Gson;
+import android.widget.Button;
+import android.widget.TextView;
 
+import okhttp3.Interceptor;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+/*
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -20,45 +32,110 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
+*/
 
 import java.io.*;
 import java.net.URLEncoder;
+import java.util.List;
 
 /**
  * Demonstrates how to use a twitter application keys to access a user's timeline
  */
 public class MainActivity extends ListActivity {
+    final static String CONSUMER_KEY = "OewqCxpycFUv0SD2ia1dqFWA1";
+    final static String CONSUMER_SECRET = "xSlMlUmwyCg6J2iYaXjHJGLVH6O5NG1igyuHfsrgy41mMQbIuA";
+    final static String BASE_URL = "https://api.twitter.com/";
+    final static String TwitterStreamURL = "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=";
+
 
     private ListActivity activity;
     final static String ScreenName = "therockncoder";
-    final static String LOG_TAG = "MainMenuTAG";
+    final static String TAG = "MainMenuTAG";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activity = this;
 
-        downloadTweets();
+            getAccess();
+
     }
 
-    // download twitter timeline after first checking to see if there is a network connection
-    public void downloadTweets() {
+    public void getAccess() {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if ((networkInfo != null) && (networkInfo.isConnected())) {
 
-        if (networkInfo != null && networkInfo.isConnected()) {
-            new DownloadTwitterTask().execute(ScreenName);
+
+            OkHttpClient httpClient = new OkHttpClient.Builder()
+                    .addInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            String urlApiKey = URLEncoder.encode(CONSUMER_KEY, "UTF-8");
+                            String urlApiSecret = URLEncoder.encode(CONSUMER_SECRET, "UTF-8");
+                            String combined = urlApiKey + ":" + urlApiSecret;
+                            String keyBase64Encoded = Base64.encodeToString(combined.getBytes(), Base64.NO_WRAP);
+
+                            Request.Builder ongoing = chain.request().newBuilder()
+                                    .addHeader("Authorization", "Basic " +keyBase64Encoded)
+                                    .addHeader("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
+
+                            return chain.proceed(ongoing.build());
+                        }
+                    }).build();
+
+            Retrofit retrofit = new Retrofit.Builder()
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .baseUrl(BASE_URL)
+                    .client(httpClient)
+                    .build();
+
+
+            OAuthServiceInterface messages = retrofit.create(OAuthServiceInterface.class);
+            GrantType grantType = new GrantType("client_credentials");
+            Call<ResponseBody> call
+                    = messages.getBearerToketn(grantType);
+
+            AsyncTask authnetworkCall = new AuthNetworkCall().execute(call);
+
         } else {
-            Log.v(LOG_TAG, "No network connection available.");
+            Log.v(TAG, "No network connection available.");
         }
     }
 
+    private class AuthNetworkCall extends AsyncTask<Call, Void, String> {
 
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected String doInBackground(Call... params) {
+            try {
+                Log.d(TAG, "Server request         : " + (params[0].request().toString()));
+                Log.d(TAG, "Server request headers : " + (params[0].request().headers().size()));
+                Log.d(TAG, "Server request isHttps : " + (params[0].request().isHttps()));
+                Log.d(TAG, "Server request body    : " + String.valueOf(params[0].request().body().toString()));
+                retrofit2.Response response = params[0].execute();
+                Log.d(TAG, "Server response: " + String.valueOf(response.code()));
+                Log.d(TAG, "Server response: " + String.valueOf(response.headers().toString()));
+                Log.d(TAG, "Server response: " + String.valueOf(response.errorBody().string()));
+                return String.valueOf(response.body());
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d(TAG, e.getMessage());
+            }
+            return "no data has fetched";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+        }
+    }
+
+/*
     private class DownloadTwitterTask extends AsyncTask<String, Void, String> {
-        final static String CONSUMER_KEY = "OewqCxpycFUv0SD2ia1dqFWA1";
-        final static String CONSUMER_SECRET = "xSlMlUmwyCg6J2iYaXjHJGLVH6O5NG1igyuHfsrgy41mMQbIuA";
-        final static String TwitterTokenURL = "https://api.twitter.com/oauth2/token";
-        final static String TwitterStreamURL = "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=";
+
 
         @Override
         protected String doInBackground(String... screenNames) {
@@ -186,4 +263,5 @@ public class MainActivity extends ListActivity {
             return results;
         }
     }
+    */
 }

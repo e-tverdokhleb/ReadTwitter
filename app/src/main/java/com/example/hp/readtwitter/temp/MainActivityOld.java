@@ -1,31 +1,11 @@
 package com.example.hp.readtwitter.temp;
 
 import android.app.ListActivity;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Base64;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-
-import com.example.hp.readtwitter.Authenticated;
-import com.example.hp.readtwitter.Tweet;
-import com.example.hp.readtwitter.Twitter;
-import com.google.gson.Gson;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 /**
  * Demonstrates how to use a twitter application keys to access a user's timeline
  */
-public class MainActivity extends ListActivity {
+public class MainActivityOld extends ListActivity {
 /*
     private ListActivity activity;
     final static String ScreenName = "therockncoder";

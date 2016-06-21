@@ -1,4 +1,4 @@
-package com.example.hp.readtwitter;
+package com.example.hp.readtwitter.prev;
 
 import com.google.gson.annotations.SerializedName;
 
