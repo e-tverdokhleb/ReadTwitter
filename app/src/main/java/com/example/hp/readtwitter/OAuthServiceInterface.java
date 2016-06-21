@@ -13,7 +13,10 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
 public interface OAuthServiceInterface {
-    @POST("oauth2/token")
-    Call<ResponseBody> getBearerToketn(@Body GrantType grant_type);
+    @Headers({"Authorization: Basic T2V3cUN4cHljRlV2MFNEMmlhMWRxRldBMTp4U2xNbFVtd3lDZzZKMmlZYVhqSEpHTFZINk81TkcxaWd5dUhmc3JneTQxbU1RYkl1QQ==",
+            "Content-Type: application/x-www-form-urlencoded;charset=UTF-8"})
+    @FormUrlEncoded
+    @POST("/oauth2/token")
+    Call<OAuthDataContributor> getBearerToketn(@Field("grant_type") String grant_type);
 
 }

@@ -3,14 +3,15 @@ package com.example.hp.readtwitter;
 import com.google.gson.annotations.SerializedName;
 
 public class OAuthDataContributor {
-    String oauth_token;
-    String oauth_token_secret;
-    boolean oauth_callback_confirmed;
+    @SerializedName("token_type")
+    String token_type;
 
-    String id_str;
+    @SerializedName("access_token")
+    String access_token;
+
 
     @Override
     public String toString(){
-        return "hi from authconvereter";
+        return token_type+ ": " +access_token;
     }
 }

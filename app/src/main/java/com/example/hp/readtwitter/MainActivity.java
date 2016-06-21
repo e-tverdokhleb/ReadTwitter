@@ -57,7 +57,7 @@ public class MainActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         activity = this;
 
-            getAccess();
+        getAccess();
 
     }
 
@@ -77,9 +77,10 @@ public class MainActivity extends ListActivity {
                             String keyBase64Encoded = Base64.encodeToString(combined.getBytes(), Base64.NO_WRAP);
 
                             Request.Builder ongoing = chain.request().newBuilder()
-                                    .addHeader("Authorization", "Basic " +keyBase64Encoded)
-                                    .addHeader("Content-Type","application/x-www-form-urlencoded;charset=UTF-8");
+                                    .addHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
+                                    .addHeader("Authorization", "Basic " + keyBase64Encoded);
 
+                            Log.d(TAG, "keyBase64: " + String.valueOf(keyBase64Encoded));
                             return chain.proceed(ongoing.build());
                         }
                     }).build();
@@ -87,14 +88,14 @@ public class MainActivity extends ListActivity {
             Retrofit retrofit = new Retrofit.Builder()
                     .addConverterFactory(GsonConverterFactory.create())
                     .baseUrl(BASE_URL)
-                    .client(httpClient)
+                  //  .client(httpClient)
                     .build();
 
 
             OAuthServiceInterface messages = retrofit.create(OAuthServiceInterface.class);
-            GrantType grantType = new GrantType("client_credentials");
-            Call<ResponseBody> call
-                    = messages.getBearerToketn(grantType);
+            //GrantType grantType = new GrantType("client_credentials");
+            Call<OAuthDataContributor> call
+                    = messages.getBearerToketn("client_credentials");
 
             AsyncTask authnetworkCall = new AuthNetworkCall().execute(call);
 
@@ -113,13 +114,13 @@ public class MainActivity extends ListActivity {
         protected String doInBackground(Call... params) {
             try {
                 Log.d(TAG, "Server request         : " + (params[0].request().toString()));
-                Log.d(TAG, "Server request headers : " + (params[0].request().headers().size()));
+                Log.d(TAG, "Server request headers : " + String.valueOf(params[0].request().headers().names()));
                 Log.d(TAG, "Server request isHttps : " + (params[0].request().isHttps()));
                 Log.d(TAG, "Server request body    : " + String.valueOf(params[0].request().body().toString()));
                 retrofit2.Response response = params[0].execute();
-                Log.d(TAG, "Server response: " + String.valueOf(response.code()));
-                Log.d(TAG, "Server response: " + String.valueOf(response.headers().toString()));
-                Log.d(TAG, "Server response: " + String.valueOf(response.errorBody().string()));
+               // Log.d(TAG, "Server response: " + String.valueOf(response.code()));
+               // Log.d(TAG, "Server response: " + String.valueOf(response.headers().toString()));
+              // Log.d(TAG, "Server response: " + String.valueOf(response.errorBody().string()));
                 return String.valueOf(response.body());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -130,6 +131,7 @@ public class MainActivity extends ListActivity {
 
         @Override
         protected void onPostExecute(String result) {
+            Log.d(TAG, "AsyncTask result: " + result);
         }
     }
 
