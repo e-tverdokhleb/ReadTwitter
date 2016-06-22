@@ -1,4 +1,4 @@
-package com.example.hp.readtwitter.temp;
+package com.example.hp.readtwitter.prev;
 
 import android.app.ListActivity;
 
