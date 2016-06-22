@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -29,13 +31,14 @@ public class MainActivity extends AppCompatActivity {
 
     final static String TAG = "MainMenuTAG";
 
-    // ListView listView = (ListView) findViewById(R.id.listView);
+    private static MainActivity instance;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        instance = this;
 
         getTwitterStream();
     }
@@ -86,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             TextView textView = (TextView) findViewById(R.id.textView);
             textView.setText("connecting...");
+            //  ProgressDialog.show(instance.getApplicationContext(), "Loading", "Wait while loading...");
         }
 
         @Override
@@ -100,11 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Server response: " + String.valueOf(response.headers().toString()));
                 if (response.code() == 200) {
                     String result = response.body().toString();
-                    String token = result.substring(result.indexOf(" "));
-                   /* params[0].request().header("Authorization: " + "Bearer" + token);
-                    params[0].request().url().newBuilder(TwitterStreamURL + "HromadskeUA");
-                    retrofit2.Response response2 = params[0].execute();
-                       */
+                    String token = result.substring(result.indexOf(" ") + 1);
                     return "Bearer " + token;
                 }
                 return "error";
@@ -116,52 +116,68 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(final String result) {
             Log.d(TAG, "AsyncTask result: " + result);
-            if (result.contains("Bearer")) {
-                TextView textView = (TextView) findViewById(R.id.textView);
-                textView.setText("connectiong successful \n loading data");
-            }
+
+            OkHttpClient httpClient = new OkHttpClient.Builder()
+                    .addInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            Request.Builder ongoing = chain.request().newBuilder()
+                                    .header("Authorization", result);
+                            return chain.proceed(ongoing.build());
+                        }
+                    }).build();
+
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+                    .client(httpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
             GetUserPostService message = retrofit.create(GetUserPostService.class);
-            Call<List<TwitterPosts>> call = message.getUserPosts("HromadskeUA");
-
+            Call<List<TwitterPosts>> call = message.getUserPosts("HromadskeUA", 20);
             AsyncTask getPosts = new Stream().execute(call);
         }
     }
 
-    private class Stream extends AsyncTask<Call, Void, String> {
+
+    private class Stream extends AsyncTask<Call, Void, List<TwitterPosts>> {
         @Override
         protected void onPreExecute() {
+            TextView textView = (TextView) findViewById(R.id.textView);
+            textView.setText("loading data...");
         }
 
         @Override
-        protected String doInBackground(Call... params) {
+        protected List<TwitterPosts> doInBackground(Call... params) {
             try {
-                Log.d(TAG, "Server request         : " + (params[0].request().toString()));
+            /*    Log.d(TAG, "Server request         : " + (params[0].request().toString()));
                 Log.d(TAG, "Server request headers : " + String.valueOf(params[0].request().headers().names()));
-                Log.d(TAG, "Server request isHttps : " + (params[0].request().isHttps()));
-                retrofit2.Response response = params[0].execute();
-                Log.d(TAG, "Server response code: " + String.valueOf(response.code()));
-                Log.d(TAG, "Server response: " + String.valueOf(response.headers().toString()));
-                return String.valueOf(response.body());
+                Log.d(TAG, "Server request isHttps : " + (params[0].request().isHttps()));   */
+
+                retrofit2.Response<List<TwitterPosts>> response = params[0].execute();
+
+                /* Log.d(TAG, "Server response code: " + String.valueOf(response.code()));
+                 Log.d(TAG, "Server response: " + String.valueOf(response.headers().toString()));
+                 String responseBody = String.valueOf(Arrays.asList(response.body().toArray()));
+                 Log.d(TAG, "response BODY: " + responseBody); */
+
+                return response.body();
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.d(TAG, e.getMessage());
             }
-            return "no data has fetched";
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            TextView textView = (TextView) findViewById(R.id.textView);
-            textView.setText(result);
-            Log.d(TAG, "Stream result: " + result);
-
+        protected void onPostExecute(List<TwitterPosts> result) {
+            ListView listView = (ListView) findViewById(R.id.listView);
+            ArrayAdapter ad
+                    = new ArrayAdapter(instance.getApplicationContext(), R.layout.list_view_simple, result);
+            listView.setAdapter(ad);
+            // Log.d(TAG, "Stream result: " + result.get(0).toString());
         }
     }
 }

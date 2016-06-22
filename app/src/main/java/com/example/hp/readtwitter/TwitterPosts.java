@@ -8,7 +8,7 @@ public class TwitterPosts {
     String text;
 
     @Override
-    public String toString(){
+    public String toString() {
         return text;
     }
 }
