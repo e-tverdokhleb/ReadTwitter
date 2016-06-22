@@ -77,13 +77,13 @@ public class MainActivityOld extends ListActivity {
             return twits;
         }
 
-        // convert a JSON authentication object into an Authenticated object
-        private Authenticated jsonToAuthenticated(String rawAuthorization) {
-            Authenticated auth = null;
+        // convert a JSON authentication object into an BearerData object
+        private BearerData jsonToAuthenticated(String rawAuthorization) {
+            BearerData auth = null;
             if (rawAuthorization != null && rawAuthorization.length() > 0) {
                 try {
                     Gson gson = new Gson();
-                    auth = gson.fromJson(rawAuthorization, Authenticated.class);
+                    auth = gson.fromJson(rawAuthorization, BearerData.class);
                 } catch (IllegalStateException ex) {
                     // just eat the exception
                 }
@@ -142,19 +142,19 @@ public class MainActivityOld extends ListActivity {
                 httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
                 httpPost.setEntity(new StringEntity("grant_type=client_credentials"));
                 String rawAuthorization = getResponseBody(httpPost);
-                com.example.TwitterTutorial.Authenticated auth = jsonToAuthenticated(rawAuthorization);
+                com.example.TwitterTutorial.BearerData auth = jsonToAuthenticated(rawAuthorization);
 
                 // Applications should verify that the value associated with the
                 // token_type key of the returned object is bearer
                 if (auth != null && auth.token_type.equals("bearer")) {
 
-                    // Step 3: Authenticate API requests with bearer token
+                    // Step 3: Authenticate Engine requests with bearer token
                     HttpGet httpGet = new HttpGet(TwitterStreamURL + screenName);
 
                     // construct a normal HTTPS request and include an Authorization
                     // header with the value of Bearer <>
                     httpGet.setHeader("Authorization", "Bearer " + auth.access_token);
-                    httpGet.setHeader("Content-Type", "application/json");
+                    httpGet.setHeader(statuses/user_timeline.json?count=100&screen_name=twitterapi);
                     // update the results with the body of the response
                     results = getResponseBody(httpGet);
                 }
