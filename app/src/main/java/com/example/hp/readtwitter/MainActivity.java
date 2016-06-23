@@ -15,6 +15,8 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.example.hp.readtwitter.Engine.TwitterPostsAdapter;
+import com.example.hp.readtwitter.Network.GetUserPostService;
+import com.example.hp.readtwitter.Network.OAuthDataContributor;
 import com.example.hp.readtwitter.Network.OAuthServiceInterface;
 
 import java.io.IOException;

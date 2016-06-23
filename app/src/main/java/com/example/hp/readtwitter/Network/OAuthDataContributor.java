@@ -1,4 +1,4 @@
-package com.example.hp.readtwitter;
+package com.example.hp.readtwitter.Network;
 
 public class OAuthDataContributor {
     String token_type;
