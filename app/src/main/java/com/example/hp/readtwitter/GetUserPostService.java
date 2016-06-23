@@ -8,6 +8,6 @@ import retrofit2.http.Query;
 
 public interface GetUserPostService {
     @GET("1.1/statuses/user_timeline.json")
-    Call<List<TwitterPosts>> getUserPosts(@Query("screen_name") String screen_name,
-                                          @Query("count") int count);
+    Call<List<TwitterPost>> getUserPosts(@Query("screen_name") String screen_name,
+                                         @Query("count") int count);
 }

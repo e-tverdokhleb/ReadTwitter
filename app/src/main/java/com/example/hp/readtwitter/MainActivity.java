@@ -5,15 +5,21 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
+
+import com.example.hp.readtwitter.Engine.TwitterPostsAdapter;
+import com.example.hp.readtwitter.Network.OAuthServiceInterface;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Interceptor;
@@ -33,6 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static MainActivity instance;
 
+    RecyclerView recyclerView;
+    TwitterPostsAdapter twitterPostsAdapter;
+    List<TwitterPost> twitterPosts;
+    SwipeRefreshLayout swipeRefreshLayout;
+    Handler handler = new Handler();
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,8 +53,26 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         instance = this;
 
-        getTwitterStream();
+        recyclerView =(RecyclerView) findViewById(R.id.recycler_view);
+        twitterPosts = new ArrayList<TwitterPost>();
+        twitterPostsAdapter = new TwitterPostsAdapter(twitterPosts);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(twitterPostsAdapter);
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(true);
+                getTwitterStream();
+            }
+        });
     }
+
+
+
 
     public void getTwitterStream() {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -87,8 +118,6 @@ public class MainActivity extends AppCompatActivity {
     private class AuthNetworkCall extends AsyncTask<Call, Void, String> {
         @Override
         protected void onPreExecute() {
-            TextView textView = (TextView) findViewById(R.id.textView);
-            textView.setText("connecting...");
             //  ProgressDialog.show(instance.getApplicationContext(), "Loading", "Wait while loading...");
         }
 
@@ -136,27 +165,24 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
             GetUserPostService message = retrofit.create(GetUserPostService.class);
-            Call<List<TwitterPosts>> call = message.getUserPosts("HromadskeUA", 20);
+            Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", 20);
             AsyncTask getPosts = new Stream().execute(call);
         }
     }
 
-
-    private class Stream extends AsyncTask<Call, Void, List<TwitterPosts>> {
+    private class Stream extends AsyncTask<Call, Void, List<TwitterPost>> {
         @Override
         protected void onPreExecute() {
-            TextView textView = (TextView) findViewById(R.id.textView);
-            textView.setText("loading data...");
         }
 
         @Override
-        protected List<TwitterPosts> doInBackground(Call... params) {
+        protected List<TwitterPost> doInBackground(Call... params) {
             try {
             /*    Log.d(TAG, "Server request         : " + (params[0].request().toString()));
                 Log.d(TAG, "Server request headers : " + String.valueOf(params[0].request().headers().names()));
                 Log.d(TAG, "Server request isHttps : " + (params[0].request().isHttps()));   */
 
-                retrofit2.Response<List<TwitterPosts>> response = params[0].execute();
+                retrofit2.Response<List<TwitterPost>> response = params[0].execute();
 
                 /* Log.d(TAG, "Server response code: " + String.valueOf(response.code()));
                  Log.d(TAG, "Server response: " + String.valueOf(response.headers().toString()));
@@ -172,11 +198,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(List<TwitterPosts> result) {
-            ListView listView = (ListView) findViewById(R.id.listView);
-            ArrayAdapter ad
-                    = new ArrayAdapter(instance.getApplicationContext(), R.layout.list_view_simple, result);
-            listView.setAdapter(ad);
+        protected void onPostExecute(List<TwitterPost> result) {
+            if (result == null){
+                return;
+            }
+            twitterPostsAdapter = new TwitterPostsAdapter(result);
+            recyclerView.setAdapter(twitterPostsAdapter);
+            swipeRefreshLayout.setRefreshing(false);
             // Log.d(TAG, "Stream result: " + result.get(0).toString());
         }
     }
