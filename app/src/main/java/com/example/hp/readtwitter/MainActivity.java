@@ -48,21 +48,19 @@ public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler();
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instance = this;
 
-        recyclerView =(RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         twitterPosts = new ArrayList<TwitterPost>();
         twitterPostsAdapter = new TwitterPostsAdapter(twitterPosts);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(twitterPostsAdapter);
-
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -72,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
 
     public void getTwitterStream() {
@@ -92,19 +88,15 @@ public class MainActivity extends AppCompatActivity {
                             Request.Builder ongoing = chain.request().newBuilder()
                                     .addHeader("Authorization", "Basic " + keyBase64Encoded)
                                     .addHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-
-
                             Log.d(TAG, "keyBase64: " + String.valueOf(keyBase64Encoded));
                             return chain.proceed(ongoing.build());
                         }
                     }).build();
-
             Retrofit retrofit = new Retrofit.Builder()
                     .addConverterFactory(GsonConverterFactory.create())
                     .baseUrl(BASE_URL)
                     .client(httpClient)
                     .build();
-
 
             OAuthServiceInterface messages = retrofit.create(OAuthServiceInterface.class);
             Call<OAuthDataContributor> call
@@ -180,17 +172,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected List<TwitterPost> doInBackground(Call... params) {
             try {
-            /*    Log.d(TAG, "Server request         : " + (params[0].request().toString()));
-                Log.d(TAG, "Server request headers : " + String.valueOf(params[0].request().headers().names()));
-                Log.d(TAG, "Server request isHttps : " + (params[0].request().isHttps()));   */
-
                 retrofit2.Response<List<TwitterPost>> response = params[0].execute();
-
-                /* Log.d(TAG, "Server response code: " + String.valueOf(response.code()));
-                 Log.d(TAG, "Server response: " + String.valueOf(response.headers().toString()));
-                 String responseBody = String.valueOf(Arrays.asList(response.body().toArray()));
-                 Log.d(TAG, "response BODY: " + responseBody); */
-
                 return response.body();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -201,13 +183,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<TwitterPost> result) {
-            if (result == null){
+            if (result == null) {
                 return;
             }
             twitterPostsAdapter = new TwitterPostsAdapter(result);
             recyclerView.setAdapter(twitterPostsAdapter);
             swipeRefreshLayout.setRefreshing(false);
-            // Log.d(TAG, "Stream result: " + result.get(0).toString());
         }
     }
 }
