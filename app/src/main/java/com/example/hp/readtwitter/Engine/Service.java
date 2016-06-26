@@ -1,13 +1,9 @@
 package com.example.hp.readtwitter.Engine;
 
 import android.text.format.DateUtils;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-/**
- * Created by HP on 23.06.2016.
- */
 public class Service {
     public static String getTimeAgo(String time) {
         if ((time != null) && (time.length() > 1)) {

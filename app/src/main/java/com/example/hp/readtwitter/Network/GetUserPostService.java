@@ -1,6 +1,6 @@
 package com.example.hp.readtwitter.Network;
 
-import com.example.hp.readtwitter.TwitterPost;
+import com.example.hp.readtwitter.TwitterClass.TwitterPost;
 
 import java.util.List;
 

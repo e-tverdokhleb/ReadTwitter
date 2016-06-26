@@ -18,6 +18,7 @@ import com.example.hp.readtwitter.Engine.TwitterPostsAdapter;
 import com.example.hp.readtwitter.Network.GetUserPostService;
 import com.example.hp.readtwitter.Network.OAuthDataContributor;
 import com.example.hp.readtwitter.Network.OAuthServiceInterface;
+import com.example.hp.readtwitter.TwitterClass.TwitterPost;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -65,10 +66,13 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+
                 swipeRefreshLayout.setRefreshing(true);
                 getTwitterStream();
             }
         });
+
+        getTwitterStream();
     }
 
 
@@ -159,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
             GetUserPostService message = retrofit.create(GetUserPostService.class);
-            Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", 20);
+            Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", 10);
             AsyncTask getPosts = new Stream().execute(call);
         }
     }
@@ -191,4 +195,6 @@ public class MainActivity extends AppCompatActivity {
             swipeRefreshLayout.setRefreshing(false);
         }
     }
+
+
 }

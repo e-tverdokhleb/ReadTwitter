@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.hp.readtwitter.R;
-import com.example.hp.readtwitter.TwitterPost;
+import com.example.hp.readtwitter.TwitterClass.TwitterPost;
 
 import java.util.List;
 
@@ -22,13 +22,13 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
         this.twitterPostsList = twitterPostsList;
     }
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView title, desc, date;
+        TextView text, desc, date, ur;
         ImageView image;
 
         public ViewHolder(View itemView) {
             super(itemView);
             desc = (TextView) itemView.findViewById(R.id.desc);
-            title = (TextView) itemView.findViewById(R.id.title);
+            text = (TextView) itemView.findViewById(R.id.title);
             date = (TextView) itemView.findViewById(R.id.date);
             image = (ImageView) itemView.findViewById(R.id.image);
         }
@@ -43,9 +43,10 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         TwitterPost twitterPost = twitterPostsList.get(position);
-        holder.title.setText(twitterPost.getTitle());
+
         holder.date.setText(getTimeAgo(twitterPost.getDate()));
-        holder.desc.setText(twitterPost.getDescription());
+        holder.text.setText(twitterPost.getMediaUrl() + "\n" + twitterPost.getUrl() );
+
     }
 
     @Override
