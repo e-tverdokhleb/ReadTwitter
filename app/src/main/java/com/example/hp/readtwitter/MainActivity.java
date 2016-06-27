@@ -1,5 +1,6 @@
 package com.example.hp.readtwitter;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -86,8 +87,6 @@ public class MainActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(true);
             }
         });
-
-       // getTwitterStream();
     }
 
 
@@ -131,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
     private class AuthNetworkCall extends AsyncTask<Call, Void, String> {
         @Override
         protected void onPreExecute() {
-            //  ProgressDialog.show(instance.getApplicationContext(), "Loading", "Wait while loading...");
+              ProgressDialog.show(getContext(), "Loading", "Wait while loading...");
         }
 
         @Override
