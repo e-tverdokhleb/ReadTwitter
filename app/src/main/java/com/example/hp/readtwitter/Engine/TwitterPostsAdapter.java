@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.hp.readtwitter.MainActivity;
 import com.example.hp.readtwitter.R;
 import com.example.hp.readtwitter.TwitterClass.TwitterPost;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -22,9 +24,9 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
     public TwitterPostsAdapter(List<TwitterPost> twitterPostsList) {
         this.twitterPostsList = twitterPostsList;
     }
-    
+
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView text, desc, date, ur;
+        TextView text, desc, date, url;
         ImageView image;
         Bitmap scr;
 
@@ -32,7 +34,8 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
             super(itemView);
             text = (TextView) itemView.findViewById(R.id.text);
             date = (TextView) itemView.findViewById(R.id.date);
-            image = (ImageView) itemView.findViewById(R.id.image);
+            url = (TextView) itemView.findViewById(R.id.url);
+            image = (ImageView) itemView.findViewById(R.id.imageView);
         }
     }
 
@@ -47,8 +50,15 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
         TwitterPost twitterPost = twitterPostsList.get(position);
 
         holder.date.setText(getTimeAgo(twitterPost.getDate()));
-        holder.text.setText(twitterPost.getText(false));
+        holder.text.setText(twitterPost.getText(true));
 
+        if ((twitterPost.getMediaUrl() != "")) {
+            Picasso.with(MainActivity.getContext())
+                    .load(twitterPost.getMediaUrl())
+                    .placeholder(R.mipmap.twitter_image_loading)
+                    .error(R.mipmap.twitter_image_loading_error)
+                    .into(holder.image);
+        }
     }
 
     @Override

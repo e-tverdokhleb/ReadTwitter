@@ -47,7 +47,12 @@ public class MainActivity extends AppCompatActivity {
     List<TwitterPost> twitterPosts;
     SwipeRefreshLayout swipeRefreshLayout;
     Handler handler = new Handler();
+    private static Context mContext;
 
+
+    public static Context getContext() {
+        return mContext;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         instance = this;
 
+        mContext = getApplicationContext();
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         twitterPosts = new ArrayList<TwitterPost>();
         twitterPostsAdapter = new TwitterPostsAdapter(twitterPosts);
@@ -63,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(twitterPostsAdapter);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -72,7 +79,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getTwitterStream();
+        swipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                getTwitterStream();
+                swipeRefreshLayout.setRefreshing(true);
+            }
+        });
+
+       // getTwitterStream();
     }
 
 
@@ -163,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
             GetUserPostService message = retrofit.create(GetUserPostService.class);
-            Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", 4);
+            Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", 10);
             AsyncTask getPosts = new Stream().execute(call);
         }
     }
@@ -193,10 +208,6 @@ public class MainActivity extends AppCompatActivity {
             twitterPostsAdapter = new TwitterPostsAdapter(result);
             recyclerView.setAdapter(twitterPostsAdapter);
             swipeRefreshLayout.setRefreshing(false);
-
-
         }
     }
-
-
 }
