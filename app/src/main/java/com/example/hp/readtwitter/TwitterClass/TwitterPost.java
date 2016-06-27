@@ -22,9 +22,13 @@ public class TwitterPost {
         return created_at;
     }
 
-    public String getText() {
+    public String getText(boolean withUrls) {
         if ((text != "") || (text != null)) {
-            return text.substring(0, text.indexOf("http") - 1);
+            if (withUrls){
+                return text;
+            }else{
+                return text.substring(0, text.indexOf("http") - 1);
+            }
         } else return "";
     }
 
@@ -33,8 +37,8 @@ public class TwitterPost {
             if ((entities.media.get(0).getMediaUrl() != "")
                     && (entities.media.get(0).getMediaUrl() != null)) {
                 return String.valueOf(entities.media.get(0).getMediaUrl());
-            } else return "no media Url";
-        } else return "no media Url";
+            } else return "";
+        } else return "";
     }
 
     public String getUrl() {
@@ -42,8 +46,8 @@ public class TwitterPost {
             if ((entities.urls.get(0).getUrl() != "")
                     && (entities.urls.get(0).getUrl() != null)) {
                 return String.valueOf(entities.urls.get(0).getUrl());
-            } else return "no Url";
-        } else return "no Url";
+            } else return "";
+        } else return "";
     }
 
 }

@@ -1,5 +1,6 @@
 package com.example.hp.readtwitter.Engine;
 
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,14 +22,15 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
     public TwitterPostsAdapter(List<TwitterPost> twitterPostsList) {
         this.twitterPostsList = twitterPostsList;
     }
+    
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView text, desc, date, ur;
         ImageView image;
+        Bitmap scr;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            desc = (TextView) itemView.findViewById(R.id.desc);
-            text = (TextView) itemView.findViewById(R.id.title);
+            text = (TextView) itemView.findViewById(R.id.text);
             date = (TextView) itemView.findViewById(R.id.date);
             image = (ImageView) itemView.findViewById(R.id.image);
         }
@@ -45,7 +47,7 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
         TwitterPost twitterPost = twitterPostsList.get(position);
 
         holder.date.setText(getTimeAgo(twitterPost.getDate()));
-        holder.text.setText(twitterPost.getMediaUrl() + "\n" + twitterPost.getUrl() );
+        holder.text.setText(twitterPost.getText(false));
 
     }
 

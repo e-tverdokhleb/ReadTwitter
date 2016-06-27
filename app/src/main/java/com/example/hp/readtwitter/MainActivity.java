@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
             GetUserPostService message = retrofit.create(GetUserPostService.class);
-            Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", 10);
+            Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", 4);
             AsyncTask getPosts = new Stream().execute(call);
         }
     }
@@ -193,6 +193,8 @@ public class MainActivity extends AppCompatActivity {
             twitterPostsAdapter = new TwitterPostsAdapter(result);
             recyclerView.setAdapter(twitterPostsAdapter);
             swipeRefreshLayout.setRefreshing(false);
+
+
         }
     }
 
