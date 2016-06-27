@@ -34,8 +34,6 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-
-
 public class MainActivity extends AppCompatActivity {
     final static String CONSUMER_KEY = "OewqCxpycFUv0SD2ia1dqFWA1";
     final static String CONSUMER_SECRET = "xSlMlUmwyCg6J2iYaXjHJGLVH6O5NG1igyuHfsrgy41mMQbIuA";
