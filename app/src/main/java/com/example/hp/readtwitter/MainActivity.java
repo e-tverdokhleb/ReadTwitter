@@ -1,6 +1,5 @@
 package com.example.hp.readtwitter;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -16,6 +15,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.example.hp.readtwitter.Engine.TwitterPostsAdapter;
+import com.example.hp.readtwitter.Engine.UserData;
 import com.example.hp.readtwitter.Network.GetUserPostService;
 import com.example.hp.readtwitter.Network.OAuthDataContributor;
 import com.example.hp.readtwitter.Network.OAuthServiceInterface;
@@ -35,10 +35,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
-    final static String CONSUMER_KEY = "OewqCxpycFUv0SD2ia1dqFWA1";
-    final static String CONSUMER_SECRET = "xSlMlUmwyCg6J2iYaXjHJGLVH6O5NG1igyuHfsrgy41mMQbIuA";
-    final static String BASE_URL = "https://api.twitter.com/";
-
     final static String TAG = "MainMenuTAG";
 
     private static MainActivity instance;
@@ -98,8 +94,8 @@ public class MainActivity extends AppCompatActivity {
                     .addInterceptor(new Interceptor() {
                         @Override
                         public Response intercept(Chain chain) throws IOException {
-                            String urlApiKey = URLEncoder.encode(CONSUMER_KEY, "UTF-8");
-                            String urlApiSecret = URLEncoder.encode(CONSUMER_SECRET, "UTF-8");
+                            String urlApiKey = URLEncoder.encode(UserData.CONSUMER_KEY, "UTF-8");
+                            String urlApiSecret = URLEncoder.encode(UserData.CONSUMER_SECRET, "UTF-8");
                             String combined = urlApiKey + ":" + urlApiSecret;
                             String keyBase64Encoded = Base64.encodeToString(combined.getBytes(), Base64.NO_WRAP);
 
@@ -112,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                     }).build();
             Retrofit retrofit = new Retrofit.Builder()
                     .addConverterFactory(GsonConverterFactory.create())
-                    .baseUrl(BASE_URL)
+                    .baseUrl(UserData.BASE_URL)
                     .client(httpClient)
                     .build();
 
@@ -127,10 +123,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
     private class AuthNetworkCall extends AsyncTask<Call, Void, String> {
         @Override
         protected void onPreExecute() {
-              ProgressDialog.show(getContext(), "Loading", "Wait while loading...");
+             // ProgressDialog.show(getContext(), "Loading", "Wait while loading...");
         }
 
         @Override
@@ -171,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                     }).build();
 
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(UserData.BASE_URL)
                     .client(httpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
@@ -181,6 +179,8 @@ public class MainActivity extends AppCompatActivity {
             AsyncTask getPosts = new Stream().execute(call);
         }
     }
+
+
 
     private class Stream extends AsyncTask<Call, Void, List<TwitterPost>> {
         @Override

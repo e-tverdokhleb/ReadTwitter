@@ -50,7 +50,7 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
         TwitterPost twitterPost = twitterPostsList.get(position);
 
         holder.date.setText(getTimeAgo(twitterPost.getDate()));
-        holder.text.setText(twitterPost.getText(true));
+        holder.text.setText(twitterPost.getText(false));
 
         if ((twitterPost.getMediaUrl() != "")) {
             Picasso.with(MainActivity.getContext())
@@ -58,7 +58,7 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
                     .placeholder(R.mipmap.twitter_image_loading)
                     .error(R.mipmap.twitter_image_loading_error)
                     .into(holder.image);
-        }
+        } else holder.image.setImageResource(R.mipmap.twitter_image_default);
     }
 
     @Override
