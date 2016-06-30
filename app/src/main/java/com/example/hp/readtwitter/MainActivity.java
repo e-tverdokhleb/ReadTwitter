@@ -19,7 +19,7 @@ import com.example.hp.readtwitter.Engine.UserData;
 import com.example.hp.readtwitter.Network.GetUserPostService;
 import com.example.hp.readtwitter.Network.OAuthDataContributor;
 import com.example.hp.readtwitter.Network.OAuthServiceInterface;
-import com.example.hp.readtwitter.TwitterClass.TwitterPost;
+import com.example.hp.readtwitter.TwitterServiceClass.TwitterPost;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -37,15 +37,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "MainMenuTAG";
 
+ //   @BindView(R.id.swipe_container) SwipeRefreshLayout swipeRefreshLayout;
+
     private static MainActivity instance;
 
     RecyclerView recyclerView;
     TwitterPostsAdapter twitterPostsAdapter;
     List<TwitterPost> twitterPosts;
     SwipeRefreshLayout swipeRefreshLayout;
+
     Handler handler = new Handler();
     private static Context mContext;
-
 
     public static Context getContext() {
         return mContext;
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         instance = this;
 
+     //   ButterKnife.bind(this);
+
         mContext = getApplicationContext();
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         twitterPosts = new ArrayList<TwitterPost>();
@@ -65,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(twitterPostsAdapter);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+
+       swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -124,11 +129,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private class AuthNetworkCall extends AsyncTask<Call, Void, String> {
         @Override
         protected void onPreExecute() {
-             // ProgressDialog.show(getContext(), "Loading", "Wait while loading...");
+            // ProgressDialog.show(getContext(), "Loading", "Wait while loading...");
         }
 
         @Override
@@ -175,11 +179,10 @@ public class MainActivity extends AppCompatActivity {
                     .build();
 
             GetUserPostService message = retrofit.create(GetUserPostService.class);
-            Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", 10);
+            Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", 4);
             AsyncTask getPosts = new Stream().execute(call);
         }
     }
-
 
 
     private class Stream extends AsyncTask<Call, Void, List<TwitterPost>> {

@@ -1,6 +1,5 @@
 package com.example.hp.readtwitter.Engine;
 
-import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,7 @@ import android.widget.TextView;
 
 import com.example.hp.readtwitter.MainActivity;
 import com.example.hp.readtwitter.R;
-import com.example.hp.readtwitter.TwitterClass.TwitterPost;
+import com.example.hp.readtwitter.TwitterServiceClass.TwitterPost;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -21,6 +20,9 @@ import static com.example.hp.readtwitter.Engine.Service.getTimeAgo;
 public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapter.ViewHolder> {
     private List<TwitterPost> twitterPostsList;
 
+
+
+
     public TwitterPostsAdapter(List<TwitterPost> twitterPostsList) {
         this.twitterPostsList = twitterPostsList;
     }
@@ -28,10 +30,21 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView text, desc, date, url;
         ImageView image;
-        Bitmap scr;
 
+     /*  @BindView(R.id.text)
+        TextView text;
+        @BindView(R.id.date)
+        TextView date;
+        @BindView(R.id.url)
+        TextView url;
+        @BindView(R.id.imageView)
+        ImageView image;
+*/
         public ViewHolder(View itemView) {
             super(itemView);
+
+          //  ButterKnife.bind(this, itemView);
+
             text = (TextView) itemView.findViewById(R.id.text);
             date = (TextView) itemView.findViewById(R.id.date);
             url = (TextView) itemView.findViewById(R.id.url);
@@ -42,6 +55,7 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view, parent, false);
+
         return new ViewHolder(v);
     }
 

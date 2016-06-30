@@ -1,4 +1,4 @@
-package com.example.hp.readtwitter.TwitterClass;
+package com.example.hp.readtwitter.TwitterServiceClass;
 
 import java.util.ArrayList;
 import java.util.List;
