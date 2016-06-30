@@ -13,6 +13,5 @@
 
         <include layout="@layout/content_main" />
 
-
     </LinearLayout>
 </android.support.v4.widget.SwipeRefreshLayout>

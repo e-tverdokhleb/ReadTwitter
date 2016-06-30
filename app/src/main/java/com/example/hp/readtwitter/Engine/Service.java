@@ -4,6 +4,7 @@ import android.text.format.DateUtils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+
 public class Service {
     public static String getTimeAgo(String time) {
         if ((time != null) && (time.length() > 1)) {
