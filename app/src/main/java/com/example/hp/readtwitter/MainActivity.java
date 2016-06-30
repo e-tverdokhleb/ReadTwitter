@@ -9,8 +9,10 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.hp.readtwitter.Engine.MessageEvent;
+import com.example.hp.readtwitter.Engine.Service;
 import com.example.hp.readtwitter.Engine.TwitterConnector;
 import com.example.hp.readtwitter.Engine.TwitterPostsAdapter;
 import com.example.hp.readtwitter.Engine.UserData;
@@ -41,13 +43,16 @@ public class MainActivity extends AppCompatActivity {
         return mContext;
     }
 
+    public static MainActivity getMainActivityInstance() {
+        return instance;
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(MessageEvent event){
+    public void onEvent(MessageEvent event) {
         swipeRefreshLayout.setRefreshing(false);
         Log.d(UserData.TAG, "event become!");
-          twitterPostsAdapter = new TwitterPostsAdapter(event.getTwitterPosts());
-          recyclerView.setAdapter(twitterPostsAdapter);
+        twitterPostsAdapter = new TwitterPostsAdapter(event.getTwitterPosts());
+        recyclerView.setAdapter(twitterPostsAdapter);
     }
 
     @Override
@@ -57,42 +62,54 @@ public class MainActivity extends AppCompatActivity {
         instance = this;
         getTwitterMessages = new TwitterConnector();
 
-
-       // EventBus.getDefault().post(new MessageEvent("We are here... "));
         mContext = getApplicationContext();
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         twitterPosts = new ArrayList<TwitterPost>();
         twitterPostsAdapter = new TwitterPostsAdapter(twitterPosts);
+
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(twitterPostsAdapter);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 
-        Log.d(UserData.TAG, "before register");
         EventBus.getDefault().register(this);
-        Log.d(UserData.TAG, "after register");
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
-                swipeRefreshLayout.setRefreshing(true);
-                getTwitterMessages.getMessages();
+                if (Service.isConnection(getMainActivityInstance())) {
+                   // swipeRefreshLayout.setRefreshing(true);
+                    getTwitterMessages.getMessages();
+                } else {
+                    Toast.makeText(getContext(), "No network conntection", Toast.LENGTH_LONG).show();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         });
 
 
-        swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                getTwitterMessages.getMessages();
-                swipeRefreshLayout.setRefreshing(true);
-            }
-        });
-
+        if (Service.isConnection(getMainActivityInstance())) {
+            swipeRefreshLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    getTwitterMessages.getMessages();
+                    swipeRefreshLayout.setRefreshing(true);
+                }
+            });
+        } else {
+            Toast.makeText(this, "No network conntection", Toast.LENGTH_LONG).show();
+        }
 
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
 
 }
 

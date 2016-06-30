@@ -42,9 +42,6 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
 */
         public ViewHolder(View itemView) {
             super(itemView);
-
-          //  ButterKnife.bind(this, itemView);
-
             text = (TextView) itemView.findViewById(R.id.text);
             date = (TextView) itemView.findViewById(R.id.date);
             url = (TextView) itemView.findViewById(R.id.url);

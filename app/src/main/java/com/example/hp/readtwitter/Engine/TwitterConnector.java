@@ -24,7 +24,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TwitterConnector {
-    public void TwitterConnector(){
+    public void TwitterConnector() {
     }
 
     public void getMessages() {
@@ -131,22 +131,12 @@ public class TwitterConnector {
             }
             EventBus.getDefault().post(new MessageEvent(result));
             Log.d(UserData.TAG, "Post execute done!");
-           ;
+            ;
         }
     }
 
 
-    //  public boolean void isConnection(){
-    //  ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    //  NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-    //  if ((networkInfo != null) && (networkInfo.isConnected()))
-    // {
-    //return true;
-    //  } else
-    //              return false;
-    //      Log.v(UserData.TAG, "No network connection available");
-    //      //  }
-    //   }
+
 
 }
 

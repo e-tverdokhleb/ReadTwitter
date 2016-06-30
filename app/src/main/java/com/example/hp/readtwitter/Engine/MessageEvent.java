@@ -6,9 +6,8 @@ import com.example.hp.readtwitter.TwitterServiceClass.TwitterPost;
 import java.util.List;
 
 public class MessageEvent {
-    public String message;
+    private String message;
     List<TwitterPost> twitterPosts;
-
 
 
     public MessageEvent(String message) {
@@ -23,7 +22,11 @@ public class MessageEvent {
         return message;
     }
 
-    public List<TwitterPost> getTwitterPosts(){
+    public void setTwitterPostos(List<TwitterPost> twitterPosts) {
+            this.twitterPosts = twitterPosts;
+    }
+
+    public List<TwitterPost> getTwitterPosts() {
         return twitterPosts;
     }
 }
