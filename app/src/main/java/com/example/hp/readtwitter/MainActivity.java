@@ -8,19 +8,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.hp.readtwitter.Engine.MessageEvent;
 import com.example.hp.readtwitter.Engine.Service;
 import com.example.hp.readtwitter.Engine.TwitterConnector;
 import com.example.hp.readtwitter.Engine.TwitterPostsAdapter;
-import com.example.hp.readtwitter.Engine.UserData;
 import com.example.hp.readtwitter.TwitterServiceClass.TwitterPost;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,12 +44,37 @@ public class MainActivity extends AppCompatActivity {
         return instance;
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe()
     public void onEvent(MessageEvent event) {
-        swipeRefreshLayout.setRefreshing(false);
-        Log.d(UserData.TAG, "event become!");
-        twitterPostsAdapter = new TwitterPostsAdapter(event.getTwitterPosts());
-        recyclerView.setAdapter(twitterPostsAdapter);
+        if (event.getEventCode() == 001) {
+            swipeRefreshLayout.setRefreshing(false);
+            Toast.makeText(this, "authorization error", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (event.getEventCode() == 002) {
+            Toast.makeText(this, "authorization passed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (event.getEventCode() == 003) {
+            swipeRefreshLayout.setRefreshing(false);
+            twitterPostsAdapter = new TwitterPostsAdapter(event.getTwitterPosts());
+            recyclerView.setAdapter(twitterPostsAdapter);
+            Toast.makeText(this, "data recived", Toast.LENGTH_SHORT).show();
+        }
+
+        if (event.getEventCode() == 004) {
+            swipeRefreshLayout.setRefreshing(false);
+            Toast.makeText(this, "cannot fetch data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (event.getEventCode() == 005) {
+            swipeRefreshLayout.setRefreshing(false);
+            Toast.makeText(this, "check Network connection", Toast.LENGTH_SHORT).show();
+            return;
+
+        }
+
     }
 
     @Override
@@ -80,8 +102,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 if (Service.isConnection(getMainActivityInstance())) {
-                   // swipeRefreshLayout.setRefreshing(true);
-                    getTwitterMessages.getMessages();
+                    getTwitterMessages.run();
                 } else {
                     Toast.makeText(getContext(), "No network conntection", Toast.LENGTH_LONG).show();
                     swipeRefreshLayout.setRefreshing(false);
@@ -94,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
             swipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
-                    getTwitterMessages.getMessages();
+                    getTwitterMessages.run();
                     swipeRefreshLayout.setRefreshing(true);
                 }
             });
