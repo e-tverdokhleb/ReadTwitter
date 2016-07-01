@@ -1,5 +1,5 @@
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:actionBarSize">1dp</item>
+        <item name="android:actionBarSize">3dp</item>
     </style>
 </resources>
