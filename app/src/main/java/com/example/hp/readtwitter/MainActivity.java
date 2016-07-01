@@ -2,7 +2,6 @@ package com.example.hp.readtwitter;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -33,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     SwipeRefreshLayout swipeRefreshLayout;
     TwitterConnector getTwitterMessages;
 
-    Handler handler = new Handler();
     private static Context mContext;
 
     public static Context getContext() {
@@ -46,33 +44,30 @@ public class MainActivity extends AppCompatActivity {
 
     @Subscribe()
     public void onEvent(MessageEvent event) {
-        if (event.getEventCode() == 001) {
+        if (event.getResponseCode() == MessageEvent.ResponseCode.AUTHORIZATION_ERROR) {
             swipeRefreshLayout.setRefreshing(false);
             Toast.makeText(this, "authorization error", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (event.getEventCode() == 002) {
+        if (event.getResponseCode() == MessageEvent.ResponseCode.AUTHORIZATION_PASSED) {
             Toast.makeText(this, "authorization passed", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (event.getEventCode() == 003) {
+        if (event.getResponseCode() == MessageEvent.ResponseCode.DATA_RECIVED) {
             swipeRefreshLayout.setRefreshing(false);
             twitterPostsAdapter = new TwitterPostsAdapter(event.getTwitterPosts());
             recyclerView.setAdapter(twitterPostsAdapter);
             Toast.makeText(this, "data recived", Toast.LENGTH_SHORT).show();
         }
-
-        if (event.getEventCode() == 004) {
+        if (event.getResponseCode() == MessageEvent.ResponseCode.CANNOT_FETCH_DATA) {
             swipeRefreshLayout.setRefreshing(false);
             Toast.makeText(this, "cannot fetch data", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        if (event.getEventCode() == 005) {
+        if (event.getResponseCode() == MessageEvent.ResponseCode.NO_NETWORK_CONNECTION) {
             swipeRefreshLayout.setRefreshing(false);
             Toast.makeText(this, "check Network connection", Toast.LENGTH_SHORT).show();
             return;
-
         }
 
     }
@@ -122,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No network conntection", Toast.LENGTH_LONG).show();
         }
-
     }
 
     @Override
@@ -130,8 +124,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
-
-
 }
 
 

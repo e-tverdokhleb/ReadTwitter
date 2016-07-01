@@ -3,7 +3,6 @@ package com.example.hp.readtwitter.Engine;
 import android.os.AsyncTask;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.hp.readtwitter.MainActivity;
 import com.example.hp.readtwitter.Network.GetUserPostService;
@@ -26,8 +25,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TwitterConnector {
-    private int tweetsCount = 5;
-    String authorizationHeader = "";
+    private static int tweetsCount = 5;
+    public static String authorizationHeader = "";
 
     public void TwitterConnector(int tweetsCount) {
         this.tweetsCount = tweetsCount;
@@ -37,10 +36,10 @@ public class TwitterConnector {
         getConntection();
     }
 
-    public void getConntection() {
+    private void getConntection() {
         if (authorizationHeader == "") {
             if (!Service.isConnection(MainActivity.getMainActivityInstance())) {
-                EventBus.getDefault().post(new MessageEvent(005));
+                EventBus.getDefault().post(new MessageEvent(MessageEvent.ResponseCode.NO_NETWORK_CONNECTION));
                 return;
             }
             OkHttpClient httpClient = new OkHttpClient.Builder()
@@ -66,57 +65,15 @@ public class TwitterConnector {
             OAuthServiceInterface messages = retrofit.create(OAuthServiceInterface.class);
             Call<OAuthDataContributor> call
                     = messages.getBearerToketn("client_credentials");
-            AsyncTask authnetworkCall = new AuthNetworkCall().execute(call);
+            AsyncTask authnetworkCall = new AsyncTasks.AuthNetworkCall().execute(call);
         } else {
-                getMessages();
+            getMessages();
         }
     }
 
-    class AuthNetworkCall extends AsyncTask<Call, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            if (!Service.isConnection(MainActivity.getMainActivityInstance())){
-                EventBus.getDefault().post(new MessageEvent(005));
-                return;
-            }
-        }
-
-        @Override
-        protected String doInBackground(Call... params) {
-            try {
-                retrofit2.Response response = params[0].execute();
-                if (response.code() == 200) {
-                    String result = response.body().toString();
-                    String token = result.substring(result.indexOf(" ") + 1);
-                    authorizationHeader = "Bearer " + token;
-                    return authorizationHeader;
-                }
-                authorizationHeader = "";
-                return "001";
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            authorizationHeader = "";
-            return "001";
-        }
-
-        @Override
-        protected void onPostExecute(final String result) {
-            if (result == "001") {
-                EventBus.getDefault().post(new MessageEvent(001));
-                return;
-            } else {
-                EventBus.getDefault().post(new MessageEvent(002));
-                getMessages();
-            }
-        }
-
-    }
-
-
-    public void getMessages() {
-        if (!Service.isConnection(MainActivity.getMainActivityInstance())){
-            EventBus.getDefault().post(new MessageEvent(005));
+    public static void getMessages() {
+        if (!Service.isConnection(MainActivity.getMainActivityInstance())) {
+            EventBus.getDefault().post(new MessageEvent(MessageEvent.ResponseCode.NO_NETWORK_CONNECTION));
             return;
         }
         OkHttpClient httpClient = new OkHttpClient.Builder()
@@ -124,7 +81,9 @@ public class TwitterConnector {
                     @Override
                     public Response intercept(Chain chain) throws IOException {
                         Request.Builder ongoing = chain.request().newBuilder()
-                                .header("Authorization", authorizationHeader);
+                                .header("Authorization", authorizationHeader)
+                                .header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+
                         return chain.proceed(ongoing.build());
                     }
                 }).build();
@@ -134,42 +93,9 @@ public class TwitterConnector {
 
         GetUserPostService message = retrofit.create(GetUserPostService.class);
         Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", tweetsCount);
-        AsyncTask getPosts = new Stream().execute(call);
+        AsyncTask getPosts = new AsyncTasks.Stream().execute(call);
     }
 
-    class Stream extends AsyncTask<Call, Void, List<TwitterPost>> {
-        @Override
-        protected void onPreExecute() {
-            if (!Service.isConnection(MainActivity.getMainActivityInstance())){
-                EventBus.getDefault().post(new MessageEvent(005));
-                return;
-            }
-            Toast.makeText(MainActivity.getMainActivityInstance(), "fetching data...", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        protected List<TwitterPost> doInBackground(Call... params) {
-            try {
-                retrofit2.Response<List<TwitterPost>> response = params[0].execute();
-                if (response.code() == 200) {
-                    return response.body();
-                } else return null;
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<TwitterPost> result) {
-            if (result != null) {
-                EventBus.getDefault().post(new MessageEvent(003, result));
-            } else {
-                EventBus.getDefault().post(new MessageEvent(004));
-            }
-        }
-    }
 
     public int getTweetsCount() {
         return tweetsCount;

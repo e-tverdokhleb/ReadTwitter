@@ -20,8 +20,6 @@ public class Service {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-        } else {
-
         }
         return "some time ago...";
     }
@@ -32,9 +30,11 @@ public class Service {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if ((networkInfo != null) && (networkInfo.isConnected())) {
             return true;
-        } else{
+        } else {
             Log.v(UserData.TAG, "No network connection available");
             return false;
         }
     }
+
+
 }

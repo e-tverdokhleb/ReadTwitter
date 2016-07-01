@@ -6,42 +6,29 @@ import com.example.hp.readtwitter.TwitterServiceClass.TwitterPost;
 import java.util.List;
 
 public class MessageEvent {
-    private String message;
-    private int eventCode;
+    public enum ResponseCode {
+        NO_NETWORK_CONNECTION, AUTHORIZATION_ERROR,
+        AUTHORIZATION_PASSED, DATA_RECIVED, CANNOT_FETCH_DATA
+    }
+
+    private ResponseCode responseCode;
+
     List<TwitterPost> twitterPosts;
-
-
-    public MessageEvent(String message) {
-        this.message = message;
-    }
-
-    public MessageEvent(List<TwitterPost> twitterPosts) {
-        this.twitterPosts = twitterPosts;
-    }
-
-    public MessageEvent(int eventCode, List<TwitterPost> twitterPosts) {
-        this.eventCode = eventCode;
-        this.twitterPosts = twitterPosts;
-    }
-
-
-    public MessageEvent(int eventCode) {
-        this.eventCode = eventCode;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setTwitterPostos(List<TwitterPost> twitterPosts) {
-        this.twitterPosts = twitterPosts;
-    }
 
     public List<TwitterPost> getTwitterPosts() {
         return twitterPosts;
     }
 
-    public int getEventCode() {
-        return this.eventCode;
+    public MessageEvent(ResponseCode responseCode) {
+        this.responseCode = responseCode;
+    }
+
+    public MessageEvent(ResponseCode responseCode, List<TwitterPost> twitterPosts) {
+        this.responseCode = responseCode;
+        this.twitterPosts = twitterPosts;
+    }
+
+    public ResponseCode getResponseCode(){
+        return responseCode;
     }
 }
