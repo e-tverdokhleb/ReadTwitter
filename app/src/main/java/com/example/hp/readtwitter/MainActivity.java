@@ -94,13 +94,24 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(twitterPostsAdapter);
+
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                Log.d(Service.TAG, String.valueOf(recyclerView.getAdapter().getItemCount()));
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    Log.d(Service.TAG, String.valueOf(recyclerView.getAdapter().getItemCount()));
+                    twitterPostsAdapter.add(new TwitterPost("test_000"));
+                    twitterPostsAdapter.notifyDataSetChanged();
+                    recyclerView.setAdapter(twitterPostsAdapter);
+                    // recyclerView.refreshDrawableState();
+                }
+            }
+
+            public void onLoadMore(int current_page) {
+                // do something...
             }
         });
 

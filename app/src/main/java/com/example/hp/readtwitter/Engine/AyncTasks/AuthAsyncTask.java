@@ -35,22 +35,25 @@ public class AuthAsyncTask extends AsyncTask<Call, Void, String> {
                 return TwitterConnector.authorizationHeader;
             }
             TwitterConnector.authorizationHeader = "";
-            return (String.valueOf(response.code()) + "_AUTHORIZATION_ERROR");
+            if (response != null) {
+                return (String.valueOf(response.code()) + "_AUTHORIZATION_ERROR");
+            } else return ("AUTHORIZATION_ERROR");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
         TwitterConnector.authorizationHeader = "";
-        return (String.valueOf(response.code()) + "_AUTHORIZATION_ERROR");
+        if (response != null) {
+            return (String.valueOf(response.code()) + "_AUTHORIZATION_ERROR");
+        } else return ("AUTHORIZATION_ERROR");
     }
 
     @Override
     protected void onPostExecute(final String result) {
         if (result.contains("AUTHORIZATION_ERROR")) {
             EventBus.getDefault().post(new MessageEvent(ResponseCode.AUTHORIZATION_ERROR));
-            return;
         } else {
             EventBus.getDefault().post(new MessageEvent(ResponseCode.AUTHORIZATION_PASSED));
-
         }
     }
 

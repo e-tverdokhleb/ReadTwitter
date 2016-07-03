@@ -7,10 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.hp.readtwitter.MainActivity;
 import com.example.hp.readtwitter.R;
 import com.example.hp.readtwitter.TwitterServiceClass.TwitterPost;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -25,6 +23,14 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
 
     public TwitterPostsAdapter(List<TwitterPost> twitterPostsList) {
         this.twitterPostsList = twitterPostsList;
+    }
+
+    public void addAll(List<TwitterPost> twitterPostsList){
+        this.twitterPostsList.addAll(twitterPostsList);
+    }
+
+    public void add(TwitterPost twitterPost){
+        this.twitterPostsList.add(twitterPost);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -63,13 +69,14 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
         holder.date.setText(getTimeAgo(twitterPost.getDate()));
         holder.text.setText(twitterPost.getText(false));
 
-        if ((twitterPost.getMediaUrl() != "")) {
+   /*     if ((twitterPost.getMediaUrl() != "")) {
             Picasso.with(MainActivity.getContext())
                     .load(twitterPost.getMediaUrl())
                     .placeholder(R.mipmap.twitter_image_loading)
                     .error(R.mipmap.twitter_image_loading_error)
                     .into(holder.image);
         } else holder.image.setImageResource(R.mipmap.twitter_image_default);
+        */
     }
 
     @Override

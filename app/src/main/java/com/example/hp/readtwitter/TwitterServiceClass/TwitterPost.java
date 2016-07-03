@@ -12,6 +12,9 @@ public class TwitterPost {
     private String source;
     private Entities entities;
 
+    public TwitterPost(String text){
+        this.text = text;
+    }
 
     @Override
     public String toString() {
@@ -23,11 +26,13 @@ public class TwitterPost {
     }
 
     public String getText(boolean withUrls) {
-        if ((text != "") || (text != null)) {
+        if ((text != null) && (text != "")) {
             if (withUrls){
                 return text;
             }else{
-                return text.substring(0, text.indexOf("http") - 1);
+                if (text.contains("http")) {
+                    return text.substring(0, text.indexOf("http") - 1);
+                }else return text;
             }
         } else return "";
     }
