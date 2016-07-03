@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.hp.readtwitter.Engine.MessageEvent;
@@ -23,6 +24,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static MainActivity instance;
+
+    public static boolean isLoading = false;
 
     private EventBus bus = EventBus.getDefault();
     RecyclerView recyclerView;
@@ -46,10 +49,11 @@ public class MainActivity extends AppCompatActivity {
         switch (event.getResponseCode()) {
             case AUTHORIZATION_ERROR:
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(this, "authorization error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "authorization error code - " + event.getErrorMessageCode().substring(3), Toast.LENGTH_SHORT).show();
                 break;
             case AUTHORIZATION_PASSED:
                 Toast.makeText(this, "authorization passed", Toast.LENGTH_SHORT).show();
+                TwitterConnector.getMessages();
                 break;
             case FETCHING_DATA:
                 Toast.makeText(MainActivity.getMainActivityInstance(), "fetching data...", Toast.LENGTH_SHORT).show();
@@ -77,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instance = this;
+        EventBus.getDefault().register(this);
         getTwitterMessages = new TwitterConnector();
 
         mContext = getApplicationContext();
@@ -91,7 +96,13 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(twitterPostsAdapter);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 
-        EventBus.getDefault().register(this);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                Log.d(Service.TAG, String.valueOf(recyclerView.getAdapter().getItemCount()));
+            }
+        });
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -104,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
 
         if (Service.isConnection(getMainActivityInstance())) {
             swipeRefreshLayout.post(new Runnable() {

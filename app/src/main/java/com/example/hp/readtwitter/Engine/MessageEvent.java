@@ -6,9 +6,8 @@ import com.example.hp.readtwitter.TwitterServiceClass.TwitterPost;
 import java.util.List;
 
 public class MessageEvent {
-
-
     private ResponseCode responseCode;
+    private String errorMessageCode;
 
     List<TwitterPost> twitterPosts;
 
@@ -20,6 +19,11 @@ public class MessageEvent {
         this.responseCode = responseCode;
     }
 
+    public MessageEvent(ResponseCode responseCode, String errorMessageCode) {
+        this.responseCode = responseCode;
+        this.errorMessageCode = errorMessageCode;
+    }
+
     public MessageEvent(ResponseCode responseCode, List<TwitterPost> twitterPosts) {
         this.responseCode = responseCode;
         this.twitterPosts = twitterPosts;
@@ -27,5 +31,9 @@ public class MessageEvent {
 
     public ResponseCode getResponseCode(){
         return responseCode;
+    }
+
+    public String getErrorMessageCode() {
+        return errorMessageCode;
     }
 }

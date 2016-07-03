@@ -2,8 +2,8 @@ package com.example.hp.readtwitter.Engine;
 
 import android.os.AsyncTask;
 
-import com.example.hp.readtwitter.Engine.AyncTasks.AuthNetworkCall;
-import com.example.hp.readtwitter.Engine.AyncTasks.Stream;
+import com.example.hp.readtwitter.Engine.AyncTasks.AuthAsyncTask;
+import com.example.hp.readtwitter.Engine.AyncTasks.ReciveDataAsyncTask;
 import com.example.hp.readtwitter.MainActivity;
 import com.example.hp.readtwitter.Network.GetUserPostService;
 import com.example.hp.readtwitter.Network.OAuthDataContributor;
@@ -19,7 +19,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TwitterConnector {
-    private static int tweetsCount = 5;
+    private static int tweetsCount = 3;
     public static String authorizationHeader = "";
 
     public void TwitterConnector(int tweetsCount) {
@@ -36,15 +36,13 @@ public class TwitterConnector {
                 EventBus.getDefault().post(new MessageEvent(ResponseCode.NO_NETWORK_CONNECTION));
                 return;
             }
-
-
             Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory
-                    .create()).baseUrl(UserData.BASE_URL).client(Service.httpClientForAuth).build();
+                    .create()).baseUrl(Service.BASE_URL).client(Service.httpClientForAuth).build();
 
             OAuthServiceInterface messages = retrofit.create(OAuthServiceInterface.class);
             Call<OAuthDataContributor> call
                     = messages.getBearerToketn("client_credentials");
-            AsyncTask authnetworkCall = new AuthNetworkCall().execute(call);
+            AsyncTask authnetworkCall = new AuthAsyncTask().execute(call);
         } else {
             getMessages();
         }
@@ -55,12 +53,12 @@ public class TwitterConnector {
             EventBus.getDefault().post(new MessageEvent(ResponseCode.NO_NETWORK_CONNECTION));
             return;
         }
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(UserData.BASE_URL)
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(Service.BASE_URL)
                 .client(Service.httpClientGetData).addConverterFactory(GsonConverterFactory.create()).build();
 
         GetUserPostService message = retrofit.create(GetUserPostService.class);
         Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", tweetsCount);
-        AsyncTask getPosts = new Stream().execute(call);
+        AsyncTask getPosts = new ReciveDataAsyncTask().execute(call);
     }
 
 

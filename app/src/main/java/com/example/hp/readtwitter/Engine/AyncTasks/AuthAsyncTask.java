@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import retrofit2.Call;
 
-public class AuthNetworkCall extends AsyncTask<Call, Void, String> {
+public class AuthAsyncTask extends AsyncTask<Call, Void, String> {
     @Override
     protected void onPreExecute() {
         if (!Service.isConnection(MainActivity.getMainActivityInstance())) {
@@ -25,8 +25,9 @@ public class AuthNetworkCall extends AsyncTask<Call, Void, String> {
 
     @Override
     protected String doInBackground(Call... params) {
+        retrofit2.Response response = null;
         try {
-            retrofit2.Response response = params[0].execute();
+            response = params[0].execute();
             if (response.code() == 200) {
                 String result = response.body().toString();
                 String token = result.substring(result.indexOf(" ") + 1);
@@ -34,22 +35,22 @@ public class AuthNetworkCall extends AsyncTask<Call, Void, String> {
                 return TwitterConnector.authorizationHeader;
             }
             TwitterConnector.authorizationHeader = "";
-            return "AUTHORIZATION_ERROR";
+            return (String.valueOf(response.code()) + "_AUTHORIZATION_ERROR");
         } catch (IOException e) {
             e.printStackTrace();
         }
         TwitterConnector.authorizationHeader = "";
-        return "AUTHORIZATION_ERROR";
+        return (String.valueOf(response.code()) + "_AUTHORIZATION_ERROR");
     }
 
     @Override
     protected void onPostExecute(final String result) {
-        if (result == "AUTHORIZATION_ERROR") {
+        if (result.contains("AUTHORIZATION_ERROR")) {
             EventBus.getDefault().post(new MessageEvent(ResponseCode.AUTHORIZATION_ERROR));
             return;
         } else {
             EventBus.getDefault().post(new MessageEvent(ResponseCode.AUTHORIZATION_PASSED));
-            TwitterConnector.getMessages();
+
         }
     }
 

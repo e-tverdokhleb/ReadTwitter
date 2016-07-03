@@ -20,6 +20,11 @@ import okhttp3.Response;
 
 
 public class Service {
+    final public static String BASE_URL = "https://api.twitter.com/";
+    final public static String CONSUMER_KEY = "OewqCxpycFUv0SD2ia1dqFWA1";
+    final public static String CONSUMER_SECRET = "xSlMlUmwyCg6J2iYaXjHJGLVH6O5NG1igyuHfsrgy41mMQbIuA";
+    final public static String TAG = "MainMenuTAG";
+
     public static String getTimeAgo(String time) {
         if ((time != null) && (time.length() > 1)) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE MMM dd kk:mm:ss ZZZ yyyy");
@@ -39,7 +44,7 @@ public class Service {
         if ((networkInfo != null) && (networkInfo.isConnected())) {
             return true;
         } else {
-            Log.v(UserData.TAG, "No network connection available");
+            Log.v(TAG, "No network connection available");
             return false;
         }
     }
@@ -48,18 +53,19 @@ public class Service {
             .addInterceptor(new okhttp3.Interceptor() {
                 @Override
                 public Response intercept(Chain chain) throws IOException {
-                    String urlApiKey = URLEncoder.encode(UserData.CONSUMER_KEY, "UTF-8");
-                    String urlApiSecret = URLEncoder.encode(UserData.CONSUMER_SECRET, "UTF-8");
+                    String urlApiKey = URLEncoder.encode(CONSUMER_KEY, "UTF-8");
+                    String urlApiSecret = URLEncoder.encode(CONSUMER_SECRET, "UTF-8");
                     String combined = urlApiKey + ":" + urlApiSecret;
                     String keyBase64Encoded = Base64.encodeToString(combined.getBytes(), Base64.NO_WRAP);
 
                     Request.Builder ongoing = chain.request().newBuilder()
                             .addHeader("Authorization", "Basic " + keyBase64Encoded)
                             .addHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-                    Log.d(UserData.TAG, "keyBase64: " + String.valueOf(keyBase64Encoded));
+                    Log.d(TAG, "keyBase64: " + String.valueOf(keyBase64Encoded));
                     return chain.proceed(ongoing.build());
                 }
             }).build();
+
 
     public static OkHttpClient httpClientGetData = new OkHttpClient.Builder()
             .addInterceptor(new Interceptor() {

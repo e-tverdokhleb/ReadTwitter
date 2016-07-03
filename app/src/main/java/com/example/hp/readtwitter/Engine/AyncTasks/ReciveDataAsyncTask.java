@@ -15,10 +15,7 @@ import java.util.List;
 
 import retrofit2.Call;
 
-/**
-* Created by HP on 03.07.2016.
-*/
-public class Stream extends AsyncTask<Call, Void, List<TwitterPost>> {
+public class ReciveDataAsyncTask extends AsyncTask<Call, Void, List<TwitterPost>> {
     @Override
     protected void onPreExecute() {
         if (!Service.isConnection(MainActivity.getMainActivityInstance())) {
@@ -37,7 +34,6 @@ public class Stream extends AsyncTask<Call, Void, List<TwitterPost>> {
             } else return null;
         } catch (IOException e) {
             e.printStackTrace();
-
         }
         return null;
     }
