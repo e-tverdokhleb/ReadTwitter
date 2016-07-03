@@ -6,10 +6,7 @@ import com.example.hp.readtwitter.TwitterServiceClass.TwitterPost;
 import java.util.List;
 
 public class MessageEvent {
-    public enum ResponseCode {
-        NO_NETWORK_CONNECTION, AUTHORIZATION_ERROR,
-        AUTHORIZATION_PASSED, DATA_RECIVED, CANNOT_FETCH_DATA
-    }
+
 
     private ResponseCode responseCode;
 

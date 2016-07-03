@@ -1,9 +1,9 @@
 package com.example.hp.readtwitter.Engine;
 
 import android.os.AsyncTask;
-import android.util.Base64;
-import android.util.Log;
 
+import com.example.hp.readtwitter.Engine.AyncTasks.AuthNetworkCall;
+import com.example.hp.readtwitter.Engine.AyncTasks.Stream;
 import com.example.hp.readtwitter.MainActivity;
 import com.example.hp.readtwitter.Network.GetUserPostService;
 import com.example.hp.readtwitter.Network.OAuthDataContributor;
@@ -12,14 +12,8 @@ import com.example.hp.readtwitter.TwitterServiceClass.TwitterPost;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.List;
 
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -39,33 +33,18 @@ public class TwitterConnector {
     private void getConntection() {
         if (authorizationHeader == "") {
             if (!Service.isConnection(MainActivity.getMainActivityInstance())) {
-                EventBus.getDefault().post(new MessageEvent(MessageEvent.ResponseCode.NO_NETWORK_CONNECTION));
+                EventBus.getDefault().post(new MessageEvent(ResponseCode.NO_NETWORK_CONNECTION));
                 return;
             }
-            OkHttpClient httpClient = new OkHttpClient.Builder()
-                    .addInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            String urlApiKey = URLEncoder.encode(UserData.CONSUMER_KEY, "UTF-8");
-                            String urlApiSecret = URLEncoder.encode(UserData.CONSUMER_SECRET, "UTF-8");
-                            String combined = urlApiKey + ":" + urlApiSecret;
-                            String keyBase64Encoded = Base64.encodeToString(combined.getBytes(), Base64.NO_WRAP);
 
-                            Request.Builder ongoing = chain.request().newBuilder()
-                                    .addHeader("Authorization", "Basic " + keyBase64Encoded)
-                                    .addHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-                            Log.d(UserData.TAG, "keyBase64: " + String.valueOf(keyBase64Encoded));
-                            return chain.proceed(ongoing.build());
-                        }
-                    }).build();
 
             Retrofit retrofit = new Retrofit.Builder().addConverterFactory(GsonConverterFactory
-                    .create()).baseUrl(UserData.BASE_URL).client(httpClient).build();
+                    .create()).baseUrl(UserData.BASE_URL).client(Service.httpClientForAuth).build();
 
             OAuthServiceInterface messages = retrofit.create(OAuthServiceInterface.class);
             Call<OAuthDataContributor> call
                     = messages.getBearerToketn("client_credentials");
-            AsyncTask authnetworkCall = new AsyncTasks.AuthNetworkCall().execute(call);
+            AsyncTask authnetworkCall = new AuthNetworkCall().execute(call);
         } else {
             getMessages();
         }
@@ -73,27 +52,15 @@ public class TwitterConnector {
 
     public static void getMessages() {
         if (!Service.isConnection(MainActivity.getMainActivityInstance())) {
-            EventBus.getDefault().post(new MessageEvent(MessageEvent.ResponseCode.NO_NETWORK_CONNECTION));
+            EventBus.getDefault().post(new MessageEvent(ResponseCode.NO_NETWORK_CONNECTION));
             return;
         }
-        OkHttpClient httpClient = new OkHttpClient.Builder()
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request.Builder ongoing = chain.request().newBuilder()
-                                .header("Authorization", authorizationHeader)
-                                .header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-
-                        return chain.proceed(ongoing.build());
-                    }
-                }).build();
-
         Retrofit retrofit = new Retrofit.Builder().baseUrl(UserData.BASE_URL)
-                .client(httpClient).addConverterFactory(GsonConverterFactory.create()).build();
+                .client(Service.httpClientGetData).addConverterFactory(GsonConverterFactory.create()).build();
 
         GetUserPostService message = retrofit.create(GetUserPostService.class);
         Call<List<TwitterPost>> call = message.getUserPosts("HromadskeUA", tweetsCount);
-        AsyncTask getPosts = new AsyncTasks.Stream().execute(call);
+        AsyncTask getPosts = new Stream().execute(call);
     }
 
 

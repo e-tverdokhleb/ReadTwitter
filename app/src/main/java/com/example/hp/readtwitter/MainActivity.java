@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
     private static MainActivity instance;
 
     private EventBus bus = EventBus.getDefault();
-
     RecyclerView recyclerView;
     TwitterPostsAdapter twitterPostsAdapter;
     List<TwitterPost> twitterPosts;
@@ -42,35 +41,36 @@ public class MainActivity extends AppCompatActivity {
         return instance;
     }
 
-    @Subscribe()
+    @Subscribe
     public void onEvent(MessageEvent event) {
-        if (event.getResponseCode() == MessageEvent.ResponseCode.AUTHORIZATION_ERROR) {
-            swipeRefreshLayout.setRefreshing(false);
-            Toast.makeText(this, "authorization error", Toast.LENGTH_SHORT).show();
-            return;
+        switch (event.getResponseCode()) {
+            case AUTHORIZATION_ERROR:
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(this, "authorization error", Toast.LENGTH_SHORT).show();
+                break;
+            case AUTHORIZATION_PASSED:
+                Toast.makeText(this, "authorization passed", Toast.LENGTH_SHORT).show();
+                break;
+            case FETCHING_DATA:
+                Toast.makeText(MainActivity.getMainActivityInstance(), "fetching data...", Toast.LENGTH_SHORT).show();
+                break;
+            case DATA_RECIVED:
+                swipeRefreshLayout.setRefreshing(false);
+                twitterPostsAdapter = new TwitterPostsAdapter(event.getTwitterPosts());
+                recyclerView.setAdapter(twitterPostsAdapter);
+                Toast.makeText(this, "data recived", Toast.LENGTH_SHORT).show();
+                break;
+            case CANNOT_FETCH_DATA:
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(this, "cannot fetch data", Toast.LENGTH_SHORT).show();
+                break;
+            case NO_NETWORK_CONNECTION:
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(this, "check Network connection", Toast.LENGTH_SHORT).show();
+                break;
         }
-        if (event.getResponseCode() == MessageEvent.ResponseCode.AUTHORIZATION_PASSED) {
-            Toast.makeText(this, "authorization passed", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (event.getResponseCode() == MessageEvent.ResponseCode.DATA_RECIVED) {
-            swipeRefreshLayout.setRefreshing(false);
-            twitterPostsAdapter = new TwitterPostsAdapter(event.getTwitterPosts());
-            recyclerView.setAdapter(twitterPostsAdapter);
-            Toast.makeText(this, "data recived", Toast.LENGTH_SHORT).show();
-        }
-        if (event.getResponseCode() == MessageEvent.ResponseCode.CANNOT_FETCH_DATA) {
-            swipeRefreshLayout.setRefreshing(false);
-            Toast.makeText(this, "cannot fetch data", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (event.getResponseCode() == MessageEvent.ResponseCode.NO_NETWORK_CONNECTION) {
-            swipeRefreshLayout.setRefreshing(false);
-            Toast.makeText(this, "check Network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
