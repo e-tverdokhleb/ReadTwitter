@@ -21,6 +21,8 @@ import static com.example.hp.readtwitter.Engine.Service.getTimeAgo;
 
 
 public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapter.ViewHolder> {
+
+
     private List<TwitterPost> twitterPostsList;
 
     public TwitterPostsAdapter(List<TwitterPost> twitterPostsList) {
@@ -60,6 +62,7 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
         TextView url;
         @BindView(R.id.imageView)
         ImageView image;
+        String currentUrl;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -70,7 +73,6 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_view, parent, false);
-
         return new ViewHolder(v);
     }
 
@@ -80,6 +82,7 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
 
         holder.date.setText(getTimeAgo(twitterPost.getDate()));
         holder.text.setText(twitterPost.getText(false));
+        holder.currentUrl = twitterPost.getUrl();
 
         if ((twitterPost.getMediaUrl() != "")) {
             Picasso.with(MainActivity.getContext())
