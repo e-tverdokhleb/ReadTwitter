@@ -20,7 +20,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class TwitterConnector {
-    private static int tweetsCount = 3;
+    private static int tweetsCount = 5;
     public static String authorizationHeader = "";
 
     public void TwitterConnector(int tweetsCount) {

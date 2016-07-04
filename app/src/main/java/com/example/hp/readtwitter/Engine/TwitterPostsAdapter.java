@@ -90,7 +90,7 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
                     .placeholder(R.mipmap.twitter_image_loading)
                     .error(R.mipmap.twitter_image_loading_error)
                     .into(holder.image);
-        } else holder.image.setImageResource(R.mipmap.twitter_image_default);
+        } else holder.image.setImageResource(R.mipmap.twitter_no_image);
 
     }
 
