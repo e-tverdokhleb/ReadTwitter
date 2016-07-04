@@ -46,6 +46,7 @@ public class AuthAsyncTask extends AsyncTask<Call, Void, String> {
         if (response != null) {
             return (String.valueOf(response.code()) + "_AUTHORIZATION_ERROR");
         } else return ("AUTHORIZATION_ERROR");
+
     }
 
     @Override

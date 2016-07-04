@@ -6,7 +6,6 @@ import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.util.Base64;
-import android.util.Log;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -23,7 +22,15 @@ public class Service {
     final public static String BASE_URL = "https://api.twitter.com/";
     final public static String CONSUMER_KEY = "OewqCxpycFUv0SD2ia1dqFWA1";
     final public static String CONSUMER_SECRET = "xSlMlUmwyCg6J2iYaXjHJGLVH6O5NG1igyuHfsrgy41mMQbIuA";
+
+    public static String defaultUserScreenName = "HromadskeUA";
+
+    public static boolean isFetchPrevPostsAsyncTaskExecute;
+    public static boolean isFetchNewPostsAsyncTaskExecute;
+    public static boolean isDataLoading;
+
     final public static String TAG = "MainMenuTAG";
+
 
     public static String getTimeAgo(String time) {
         if ((time != null) && (time.length() > 1)) {
@@ -44,7 +51,6 @@ public class Service {
         if ((networkInfo != null) && (networkInfo.isConnected())) {
             return true;
         } else {
-            Log.v(TAG, "No network connection available");
             return false;
         }
     }
@@ -61,7 +67,6 @@ public class Service {
                     Request.Builder ongoing = chain.request().newBuilder()
                             .addHeader("Authorization", "Basic " + keyBase64Encoded)
                             .addHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-                    Log.d(TAG, "keyBase64: " + String.valueOf(keyBase64Encoded));
                     return chain.proceed(ongoing.build());
                 }
             }).build();
@@ -72,9 +77,7 @@ public class Service {
                 @Override
                 public Response intercept(Chain chain) throws IOException {
                     Request.Builder ongoing = chain.request().newBuilder()
-                            .header("Authorization", TwitterConnector.authorizationHeader)
-                            .header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-
+                            .header("Authorization", TwitterConnector.authorizationHeader);
                     return chain.proceed(ongoing.build());
                 }
             }).build();

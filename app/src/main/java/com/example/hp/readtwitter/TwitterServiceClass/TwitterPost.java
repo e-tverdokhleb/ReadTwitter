@@ -55,6 +55,10 @@ public class TwitterPost {
         } else return "";
     }
 
+    public String getId(){
+        return id;
+    }
+
 }
 
 class Entities {

@@ -7,10 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.hp.readtwitter.Engine.MessageEvent;
+import com.example.hp.readtwitter.Engine.ResponseCode;
 import com.example.hp.readtwitter.Engine.Service;
 import com.example.hp.readtwitter.Engine.TwitterConnector;
 import com.example.hp.readtwitter.Engine.TwitterPostsAdapter;
@@ -20,19 +20,14 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static MainActivity instance;
 
-    public static boolean isLoading = false;
-
-    private EventBus bus = EventBus.getDefault();
     RecyclerView recyclerView;
-    TwitterPostsAdapter twitterPostsAdapter;
-    List<TwitterPost> twitterPosts;
+    public static TwitterPostsAdapter twitterPostsAdapter;
     SwipeRefreshLayout swipeRefreshLayout;
-    TwitterConnector getTwitterMessages;
+    TwitterConnector twitterConnector;
 
     private static Context mContext;
 
@@ -47,34 +42,63 @@ public class MainActivity extends AppCompatActivity {
     @Subscribe
     public void onEvent(MessageEvent event) {
         switch (event.getResponseCode()) {
-            case AUTHORIZATION_ERROR:
-                swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(this, "authorization error code - " + event.getErrorMessageCode().substring(3), Toast.LENGTH_SHORT).show();
-                break;
-            case AUTHORIZATION_PASSED:
-                Toast.makeText(this, "authorization passed", Toast.LENGTH_SHORT).show();
-                TwitterConnector.getMessages();
-                break;
-            case FETCHING_DATA:
-                Toast.makeText(MainActivity.getMainActivityInstance(), "fetching data...", Toast.LENGTH_SHORT).show();
-                break;
-            case DATA_RECIVED:
-                swipeRefreshLayout.setRefreshing(false);
-                twitterPostsAdapter = new TwitterPostsAdapter(event.getTwitterPosts());
-                recyclerView.setAdapter(twitterPostsAdapter);
-                Toast.makeText(this, "data recived", Toast.LENGTH_SHORT).show();
-                break;
-            case CANNOT_FETCH_DATA:
-                swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(this, "cannot fetch data", Toast.LENGTH_SHORT).show();
-                break;
             case NO_NETWORK_CONNECTION:
                 swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(this, "check Network connection", Toast.LENGTH_SHORT).show();
                 break;
+
+            case CANNOT_FETCH_DATA:
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(this, "cannot fetch data", Toast.LENGTH_SHORT).show();
+                break;
+
+            case AUTHORIZATION_ERROR:
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(this, "authorization error code - " + event.getErrorMessageCode().substring(3), Toast.LENGTH_SHORT).show();
+                //403 Forbidden, 401 Unauthorized
+                break;
+
+
+            case AUTHORIZATION_PASSED:
+                Toast.makeText(this, "authorization passed", Toast.LENGTH_SHORT).show();
+                twitterConnector.loadPosts();
+                break;
+
+
+            case FETCHING_DATA:
+                break;
+
+            case DATA_RECIVED:
+                swipeRefreshLayout.setRefreshing(false);
+                twitterPostsAdapter.updateData(event.getTwitterPosts());
+                twitterPostsAdapter.notifyDataSetChanged();
+                recyclerView.refreshDrawableState();
+                break;
+
+            case NEW_POSTS_RECIVED:
+                swipeRefreshLayout.setRefreshing(false);
+                twitterPostsAdapter.addAll(0, event.getNewPosts());
+                twitterPostsAdapter.notifyDataSetChanged();
+                recyclerView.refreshDrawableState();
+                break;
+
+            case NEW_POSTS_NO_RECIVED:
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(this, "no new posts", Toast.LENGTH_SHORT).show();
+                break;
+
+
+            case FETCH_PREV_POSTS:
+                twitterConnector.fetchPreviouslyPosts();
+                break;
+
+            case PREV_POSTS_RECIVED:
+                twitterPostsAdapter.addAll(event.getPrevPosts());
+                twitterPostsAdapter.notifyDataSetChanged();
+                recyclerView.refreshDrawableState();
+                break;
         }
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,13 +106,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         instance = this;
         EventBus.getDefault().register(this);
-        getTwitterMessages = new TwitterConnector();
+        twitterConnector = new TwitterConnector();
 
         mContext = getApplicationContext();
 
+        Service.isFetchPrevPostsAsyncTaskExecute = false;
+        Service.isFetchNewPostsAsyncTaskExecute = false;
+        Service.isDataLoading = false; // - TODO
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        twitterPosts = new ArrayList<TwitterPost>();
-        twitterPostsAdapter = new TwitterPostsAdapter(twitterPosts);
+        twitterPostsAdapter = new TwitterPostsAdapter(new ArrayList<TwitterPost>());
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -101,12 +128,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    Log.d(Service.TAG, String.valueOf(recyclerView.getAdapter().getItemCount()));
-                    twitterPostsAdapter.add(new TwitterPost("test_000"));
-                    twitterPostsAdapter.notifyDataSetChanged();
-                    recyclerView.setAdapter(twitterPostsAdapter);
-                    // recyclerView.refreshDrawableState();
+                if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
+                    EventBus.getDefault().post(new MessageEvent(ResponseCode.FETCH_PREV_POSTS));
                 }
             }
 
@@ -119,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 if (Service.isConnection(getMainActivityInstance())) {
-                    getTwitterMessages.run();
+                    twitterConnector.loadPosts();
                 } else {
                     Toast.makeText(getContext(), "No network conntection", Toast.LENGTH_LONG).show();
                     swipeRefreshLayout.setRefreshing(false);
@@ -131,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
             swipeRefreshLayout.post(new Runnable() {
                 @Override
                 public void run() {
-                    getTwitterMessages.run();
+                    twitterConnector.loadPosts();
                     swipeRefreshLayout.setRefreshing(true);
                 }
             });

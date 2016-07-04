@@ -9,7 +9,9 @@ public class MessageEvent {
     private ResponseCode responseCode;
     private String errorMessageCode;
 
-    List<TwitterPost> twitterPosts;
+    private List<TwitterPost> twitterPosts;
+    private List<TwitterPost> prevPosts;
+    private List<TwitterPost> newPosts;
 
     public List<TwitterPost> getTwitterPosts() {
         return twitterPosts;
@@ -35,5 +37,21 @@ public class MessageEvent {
 
     public String getErrorMessageCode() {
         return errorMessageCode;
+    }
+
+    public void setPrevPosts(List<TwitterPost> prevPosts) {
+        this.prevPosts = prevPosts;
+    }
+
+    public List<TwitterPost> getPrevPosts() {
+        return prevPosts;
+    }
+
+    public void setNewPosts(List<TwitterPost> newPosts) {
+        this.newPosts = newPosts;
+    }
+
+    public List<TwitterPost> getNewPosts() {
+        return newPosts;
     }
 }
