@@ -21,14 +21,18 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
-    private static MainActivity instance;
-
+    @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
-    public static TwitterPostsAdapter twitterPostsAdapter;
-    SwipeRefreshLayout swipeRefreshLayout;
-    TwitterConnector twitterConnector;
+    @BindView(R.id.swipe_container)SwipeRefreshLayout swipeRefreshLayout;
 
+    private static MainActivity instance;
+    public static TwitterPostsAdapter twitterPostsAdapter;
+    TwitterConnector twitterConnector;
+    LinearLayoutManager mLayoutManager;
     private static Context mContext;
 
     public static Context getContext() {
@@ -47,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "check Network connection", Toast.LENGTH_SHORT).show();
                 break;
 
-            case CANNOT_FETCH_DATA:
+            case FIRST_DATA_CANNOT_FETCH:
                 swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(this, "cannot fetch data", Toast.LENGTH_SHORT).show();
                 break;
@@ -60,15 +64,14 @@ public class MainActivity extends AppCompatActivity {
 
 
             case AUTHORIZATION_PASSED:
-                Toast.makeText(this, "authorization passed", Toast.LENGTH_SHORT).show();
                 twitterConnector.loadPosts();
                 break;
 
 
-            case FETCHING_DATA:
+            case FIRST_DATA_FETCHING:
                 break;
 
-            case DATA_RECIVED:
+            case FIRST_DATA_RECIVED:
                 swipeRefreshLayout.setRefreshing(false);
                 twitterPostsAdapter.updateData(event.getTwitterPosts());
                 twitterPostsAdapter.notifyDataSetChanged();
@@ -82,13 +85,13 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView.refreshDrawableState();
                 break;
 
-            case NEW_POSTS_NO_RECIVED:
+            case NEW_POSTS_NO_PRESENT:
                 swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(this, "no new posts", Toast.LENGTH_SHORT).show();
                 break;
 
 
-            case FETCH_PREV_POSTS:
+            case PREV_POSTS_FETCH:
                 twitterConnector.fetchPreviouslyPosts();
                 break;
 
@@ -105,7 +108,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instance = this;
+        ButterKnife.bind(this);
         EventBus.getDefault().register(this);
+
         twitterConnector = new TwitterConnector();
 
         mContext = getApplicationContext();
@@ -114,27 +119,19 @@ public class MainActivity extends AppCompatActivity {
         Service.isFetchNewPostsAsyncTaskExecute = false;
         Service.isDataLoading = false; // - TODO
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         twitterPostsAdapter = new TwitterPostsAdapter(new ArrayList<TwitterPost>());
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(twitterPostsAdapter);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
-
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
-                    EventBus.getDefault().post(new MessageEvent(ResponseCode.FETCH_PREV_POSTS));
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (mLayoutManager.findLastVisibleItemPosition() >= (mLayoutManager.getItemCount() - 1)) {
+                    EventBus.getDefault().post(new MessageEvent(ResponseCode.PREV_POSTS_FETCH));
                 }
-            }
-
-            public void onLoadMore(int current_page) {
-                // do something...
             }
         });
 
@@ -149,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
 
         if (Service.isConnection(getMainActivityInstance())) {
             swipeRefreshLayout.post(new Runnable() {
@@ -168,6 +166,8 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
+
+
 }
 
 

@@ -47,10 +47,10 @@ public class FetchNewPostsAsyncTask extends AsyncTask<Call, Void, List<TwitterPo
                 newPostsRecivedData.setNewPosts(result);
                 EventBus.getDefault().post(newPostsRecivedData);
             } else {
-                EventBus.getDefault().post(new MessageEvent(ResponseCode.NEW_POSTS_NO_RECIVED));
+                EventBus.getDefault().post(new MessageEvent(ResponseCode.NEW_POSTS_NO_PRESENT));
             }
         } else {
-            EventBus.getDefault().post(new MessageEvent(ResponseCode.CANNOT_FETCH_DATA));
+            EventBus.getDefault().post(new MessageEvent(ResponseCode.FIRST_DATA_CANNOT_FETCH));
         }
     }
 }

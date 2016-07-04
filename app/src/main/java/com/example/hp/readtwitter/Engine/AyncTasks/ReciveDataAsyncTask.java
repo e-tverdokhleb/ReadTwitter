@@ -22,7 +22,7 @@ public class ReciveDataAsyncTask extends AsyncTask<Call, Void, List<TwitterPost>
             EventBus.getDefault().post(new MessageEvent(ResponseCode.NO_NETWORK_CONNECTION));
             return;
         }
-        EventBus.getDefault().post(new MessageEvent(ResponseCode.FETCHING_DATA));
+        EventBus.getDefault().post(new MessageEvent(ResponseCode.FIRST_DATA_FETCHING));
     }
 
     @Override
@@ -41,9 +41,9 @@ public class ReciveDataAsyncTask extends AsyncTask<Call, Void, List<TwitterPost>
     @Override
     protected void onPostExecute(List<TwitterPost> result) {
         if (result != null) {
-            EventBus.getDefault().post(new MessageEvent(ResponseCode.DATA_RECIVED, result));
+            EventBus.getDefault().post(new MessageEvent(ResponseCode.FIRST_DATA_RECIVED, result));
         } else {
-            EventBus.getDefault().post(new MessageEvent(ResponseCode.CANNOT_FETCH_DATA));
+            EventBus.getDefault().post(new MessageEvent(ResponseCode.FIRST_DATA_CANNOT_FETCH));
         }
     }
 }

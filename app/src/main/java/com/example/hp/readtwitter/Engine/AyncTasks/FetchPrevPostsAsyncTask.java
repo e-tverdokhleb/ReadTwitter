@@ -51,7 +51,7 @@ public class FetchPrevPostsAsyncTask extends AsyncTask<Call, Void, List<TwitterP
                 EventBus.getDefault().post(prevPostsRecivedData);
             }
         } else {
-            EventBus.getDefault().post(new MessageEvent(ResponseCode.CANNOT_FETCH_DATA));
+            EventBus.getDefault().post(new MessageEvent(ResponseCode.FIRST_DATA_CANNOT_FETCH));
         }
     }
 }

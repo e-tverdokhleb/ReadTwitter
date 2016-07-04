@@ -14,6 +14,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static com.example.hp.readtwitter.Engine.Service.getTimeAgo;
 
 
@@ -44,29 +47,23 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
         }
     }
 
-    public String getTweetId(int postition){
+    public String getTweetId(int postition) {
         return twitterPostsList.get(postition).getId();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView text, desc, date, url;
+        @BindView(R.id.text)
+        TextView text;
+        @BindView(R.id.date)
+        TextView date;
+        @BindView(R.id.url)
+        TextView url;
+        @BindView(R.id.imageView)
         ImageView image;
 
-        /*  @BindView(R.id.text)
-           TextView text;
-           @BindView(R.id.date)
-           TextView date;
-           @BindView(R.id.url)
-           TextView url;
-           @BindView(R.id.imageView)
-           ImageView image;
-   */
         public ViewHolder(View itemView) {
             super(itemView);
-            text = (TextView) itemView.findViewById(R.id.text);
-            date = (TextView) itemView.findViewById(R.id.date);
-            url = (TextView) itemView.findViewById(R.id.url);
-            image = (ImageView) itemView.findViewById(R.id.imageView);
+            ButterKnife.bind(this, itemView);
         }
     }
 

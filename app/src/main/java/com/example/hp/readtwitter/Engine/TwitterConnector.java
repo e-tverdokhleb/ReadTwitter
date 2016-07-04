@@ -93,7 +93,7 @@ public class TwitterConnector {
                 .client(Service.httpClientGetData).addConverterFactory(GsonConverterFactory.create()).build();
 
         DataExchangeService getUserPostService = retrofit.create(DataExchangeService.class);
-        Call<List<TwitterPost>> call = getUserPostService.fetchPrevPosts(Service.defaultUserScreenName, MainActivity.twitterPostsAdapter.getLastTweetId(), 3);
+        Call<List<TwitterPost>> call = getUserPostService.fetchPrevPosts(Service.defaultUserScreenName, MainActivity.twitterPostsAdapter.getLastTweetId(), 2);
 
         if (!Service.isFetchPrevPostsAsyncTaskExecute) {
             AsyncTask getPosts = new FetchPrevPostsAsyncTask().execute(call);
