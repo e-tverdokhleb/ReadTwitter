@@ -21,8 +21,6 @@ import static com.example.hp.readtwitter.Engine.Service.getTimeAgo;
 
 
 public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapter.ViewHolder> {
-
-
     private List<TwitterPost> twitterPostsList;
 
     public TwitterPostsAdapter(List<TwitterPost> twitterPostsList) {
@@ -91,13 +89,10 @@ public class TwitterPostsAdapter extends RecyclerView.Adapter<TwitterPostsAdapte
                     .error(R.mipmap.twitter_image_loading_error)
                     .into(holder.image);
         } else holder.image.setImageResource(R.mipmap.twitter_no_image);
-
     }
 
     @Override
     public int getItemCount() {
         return twitterPostsList.size();
     }
-
-
 }
